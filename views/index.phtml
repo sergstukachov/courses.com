@@ -1,0 +1,59 @@
+<html>
+<head>
+    <title>Index</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<h1>Courses and Students</h1>
+
+<div class="content">
+    <?= $content; ?>
+    <div>
+        <a href="/list/students/">Students List</a>
+    </div>
+</div>
+<div class="content">
+    <?= $content; ?>
+    <div>
+        <a href="/list/courses/">Courses List</a>
+    </div>
+</div>
+<div>
+
+    <h1>Students</h1>
+    <table class="tbl-qa">
+        <thead>
+        <tr>
+            <th class="table-header">Name</th>
+            <th class="table-header">Surname</th>
+            <th class="table-header">Email</th>
+            <th class="table-header">Photo Link</th>
+            <th class="table-header">Course</th>
+            <th class="table-header">Teacher</th>
+        </tr>
+        </thead>
+        <tbody id="table-body">
+        <?php
+        if (!empty($students)) {
+            foreach ($students as $student) {
+                ?>
+                <tr class="table-row" id="table-row-<?php echo $student["student_id"]; ?>">
+                    <td><?= $student["name"]; ?></td>
+                    <td><?= $student["surname"]; ?></td>
+                    <td><?= $student["email"]; ?></td>
+                    <td ><?= $student["photo"]; ?></td>
+                    <td><?= $student['course']; ?> </td>
+                    <td><?= $student["teacher"]; ?></td>
+                </tr>
+                <?php
+            }
+        }
+        ?>
+        </tbody>
+    </table>
+
+
+</body>
+</html>
+
+

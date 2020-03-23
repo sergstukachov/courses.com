@@ -1,0 +1,95 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <title>Courses</title>
+</head>
+<body>
+<h1>Courses</h1>
+<table class="tbl-qa">
+    <thead>
+    <tr>
+        <th class="table-header">Course</th>
+        <th class="table-header">Teacher</th>
+        <th class="table-header">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="table-body">
+    <?php
+    if(!empty($courses)) {
+        foreach($courses as $course) {
+            ?>
+            <tr class="table-row" id="table-row-<?php echo $course["course_id"]; ?>">
+                <td contenteditable="true" onBlur="saveToDatabase(this,'course','<?php echo $course["course_id"]; ?>')" onClick="editRow(this);"><?php echo $course["course"]; ?></td>
+                <td contenteditable="true" onBlur="saveToDatabase(this,'teacher','<?php echo $course["course_id"]; ?>')" onClick="editRow(this);"><?php echo $course["teacher"]; ?></td>
+                <td><a class="ajax-action-links" onclick="deleteRecord(<?php echo $course["course_id"]; ?>);">Delete</a></td>
+            </tr>
+            <?php
+        }
+    }
+    ?>
+    </tbody>
+</table>
+<div class="ajax-action-button" id="add-more" onclick="createNew();">Add More</div>
+<script>
+    function createNew() {
+        $("#add-more").hide();
+        var data = '<tr class="table-row" id="new_row_ajax">' +
+            '<td contenteditable="true" id="txt_course" onBlur="addToHiddenField(this,\'course\')" onClick="editRow(this);"></td>' +
+            '<td contenteditable="true" id="txt_teacher" onBlur="addToHiddenField(this,\'teacher\')" onClick="editRow(this);"></td>' +
+            '<td><input type="hidden" id="course" /><input type="hidden" id="teacher" /><span id="confirmAdd"><a onClick="addToDatabase()" class="ajax-action-links">Save</a> / <a onclick="cancelAdd();" class="ajax-action-links">Cancel</a></span></td>' +
+            '</tr>';
+        $("#table-body").append(data);
+    }
+    function cancelAdd() {
+        $("#add-more").show();
+        $("#new_row_ajax").remove();
+    }
+    function addToDatabase() {
+        var course = $("#course").val();
+        var teacher = $("#teacher").val();
+
+        $("#confirmAdd").html('<p>OK</p>');
+        $.ajax({
+            url: "/save/courses/",
+            type: "POST",
+            data:'course='+course+'&teacher='+teacher,
+            success: function(data){
+                $("#new_row_ajax").remove();
+                $("#table-body").append(data);
+                $("#add-more").show();
+            }
+        });
+    }
+    function addToHiddenField(addColumn,hiddenField) {
+        var columnValue = $(addColumn).text();
+        $("#"+hiddenField).val(columnValue);
+    }
+    function saveToDatabase(editableObj,column,course_id) {
+        $(editableObj).css("background","#FFF url(loaderIcon.gif) no-repeat right");
+        $.ajax({
+            url: "/edit/courses/",
+            type: "POST",
+            data:'column='+column+'&editval='+$(editableObj).text()+'&course_id='+course_id,
+            success: function(data){
+                $(editableObj).css("background","#FDFDFD");
+            }
+        });
+    }
+    function deleteRecord(course_id) {
+        if(confirm("Are you sure you want to delete this row?")) {
+            $.ajax({
+                url: "/delete/courses/",
+                type: "POST",
+                data:'course_id='+course_id,
+                success: function(data){
+                    $("#table-row-"+course_id).remove();
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
